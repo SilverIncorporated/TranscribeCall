@@ -5,6 +5,7 @@ const TranscriptionService = require("./transcriptionService");
 const TwilioSocketConnection = sockets.TwilioSocketConnection;
 const TextToSpeech = require("./textToSpeechService");
 const wavefile = require('wavefile');
+const gpt = require('./GPTPlugin');
 
 var webSocketServer = new (require('ws')).Server({port: (3000)});
 
@@ -29,7 +30,7 @@ webSocketServer.on('connection', (ws, req) => {
         twilioSocket = new TwilioSocketConnection(ws, req);
         gsClientInbound = new TranscriptionService();
         gsClientInbound.on("transcription", (transcription) => {
-          HandleTranscription(transcription);
+          Respond(transcription);
         })
 
         twilioSocket.on("message", (msg) => TranscribeMessage(msg));
@@ -53,8 +54,8 @@ function TranscribeMessage(message) {
   gsClientInbound.send(message.media.payload);
 }
 
-async function HandleTranscription(message){
-  log(message);
+async function SayAudio(message){
+
   var response = await GetResponseAudio(message);
 
   if(twilioSocket) {
@@ -89,4 +90,15 @@ function CloseTwilioSocket() {
 
 async function GetResponseAudio(text) {
   return await TextToSpeech(text, 'en-US', 'NEUTRAL');
+}
+
+async function Respond(msg) { 
+
+  log(`User: ${msg}`);
+
+  var response = await gpt(msg);
+
+  log(`Agent: ${response}`)
+
+  SayAudio(response);
 }
