@@ -1,0 +1,41 @@
+﻿name: Docker
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+    deploy:
+
+        name: Push to GCloud
+        runs-on: ubuntu-latest
+        env:
+          IMAGE_NAME: gcr.io/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_APP_NAME }}
+        steps:
+
+        - name: Checkout repository
+          uses: actions/checkout@v3
+
+        - name: Auth
+          uses: google-github-actions/auth@v1
+          with:
+            credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+        - name: 'Set up Cloud SDK'
+          uses: 'google-github-actions/setup-gcloud@v1'
+
+        - name: 'Use gcloud CLI'
+          run: 'gcloud info'
+
+        - name: Configure Docker
+          run: gcloud auth configure-docker --quiet
+
+        - name: Build Docker image
+          run: docker build . -t $IMAGE_NAME
+
+        - name: Push Docker image
+          run: docker push $IMAGE_NAME
+
+        - name: Deploy Docker image
+          run: gcloud run deploy ${{ vars.GCP_PROJECT_ID }} --image $IMAGE_NAME --region ${{ vars.GCP_ZONE }} --platform managed
