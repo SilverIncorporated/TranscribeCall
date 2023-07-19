@@ -10,6 +10,7 @@ const Listener = ListenerSocket.Listenersocket
 const GPTPlugin = require('./modules/GPTPlugin')
 const ChatGPT = GPTPlugin.GPTPlugin;
 const {encode, decode} = require('gpt-3-encoder')
+var defaultFunctions = require("./modules/Functions.json")
 
 var webSocketServer = new (require('ws')).Server({port: (process.env.PORT)});
 
@@ -40,7 +41,7 @@ webSocketServer.on('connection', (ws, req) => {
       var newListener = new Listener(ws, req, req.url);
       listenerSockets[newListener.id] = newListener;
       newListener.on("start", (msg) => log("Listener Attached"));
-      newListener.on("registerFunction", (msg) => RegisterFunction(msg))
+      newListener.on("registerFunction", (msg) => RegisterFunction(msg.content))
       newListener.on("close", () => CloseListener(newListener.id));
       newListener.on('echo', (msg) => BroadcastListeners("echo", msg));
     }
@@ -49,8 +50,8 @@ webSocketServer.on('connection', (ws, req) => {
     log("Failed to connect socket!\n" + error.message);
   }
 })
-function RegisterFunction(msg) {
-  gpt.RegisterFunction(msg.content, (func) => BroadcastListeners('callFunction', func));
+function RegisterFunction(func) {
+  gpt.RegisterFunction(func, (func) => BroadcastListeners('callFunction', func));
 }
 function BroadcastListeners(event, content) {
   for ( let key in listenerSockets ) {
@@ -113,4 +114,10 @@ async function Respond(text) {
     tokens:tokens.map(token => decode(token))
   });
   SayAudio(response);
+}
+
+for (func in defaultFunctions) {
+
+  RegisterFunction(func);
+
 }
