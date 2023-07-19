@@ -9,6 +9,7 @@ const ListenerSocket = require('./ListenerSocket')
 const Listener = ListenerSocket.Listenersocket
 const GPTPlugin = require('./GPTPlugin')
 const ChatGPT = GPTPlugin.GPTPlugin;
+const {encode, decode} = require('gpt-3-encoder')
 
 var webSocketServer = new (require('ws')).Server({port: (3000)});
 
@@ -51,12 +52,9 @@ webSocketServer.on('connection', (ws, req) => {
     log("Failed to connect socket!\n" + error.message);
   }
 })
-function ParseListenerMessage(msg) {
-
-}
-function BroadcastListeners(msg) {
+function BroadcastListeners(event, content) {
   for ( let key in listenerSockets ) {
-    listenerSockets[key].writeMessage(msg.event, "echo");
+    listenerSockets[key].writeMessage(msg.event, msg.content);
   }
 }
 function CloseListener(id){
@@ -99,13 +97,20 @@ function CloseTwilioSocket() {
 async function GetResponseAudio(text) {
   return await TextToSpeech(text, 'en-US', 'NEUTRAL');
 }
-async function Respond(msg) { 
+async function Respond(text) {
+  log(`User: ${text}`);
+  var tokens = encode(text);
+  BroadcastListeners('transcription', {
+      role:'user',
+      tokens:tokens
+    });
 
-  log(`User: ${msg}`);
+  var response = await gpt.GenerateResponse(text);
 
-  var response = await gpt.GenerateResponse(msg);
-
-  log(`Agent: ${response}`)
-
+  var tokens = encode(response);
+  BroadcastListeners('transcription', {
+    role:'assistant',
+    tokens:tokens
+  });
   SayAudio(response);
 }
