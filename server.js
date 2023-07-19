@@ -42,7 +42,7 @@ webSocketServer.on('connection', (ws, req) => {
       newListener.on("start", (msg) => log("Listener Attached"));
       newListener.on("listFunctions", (msg) => log(msg))
       newListener.on("close", () => CloseListener(newListener.id));
-      newListener.on('echo', (msg) => BroadcastListeners("echo","message"));
+      newListener.on('echo', (msg) => BroadcastListeners("echo",msg));
     }
   }
   catch(error) {
