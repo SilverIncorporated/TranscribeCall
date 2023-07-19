@@ -35,6 +35,7 @@ webSocketServer.on('connection', (ws, req) => {
       })
       twilioSocket.on("message", (msg) => TranscribeMessage(msg));
       twilioSocket.on('close', CloseTwilioSocket);
+      Respond("Introduce yourself")
     }
     else if(req.url.startsWith('/listener')) {    
       log(`Listener connected at ${req.url}`)

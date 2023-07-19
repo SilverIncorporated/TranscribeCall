@@ -51,7 +51,7 @@ module.exports = {
             })
             if(result.data.choices[0].message.function_call) {
                 var functionCall = result.data.choices[0].message.function_call;
-                log(`Calling function ${functionCall.name}`)
+                log(`Agent Action: Calling function ${functionCall.name}`)
                 this.currentMessages.push(
                     {
                         'role': 'function',
