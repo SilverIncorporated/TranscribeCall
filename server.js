@@ -1,13 +1,13 @@
 require("dotenv").config();
 const { log } = require("console");
-const TwilioSocket = require("./TwilioSocket");
-const TranscriptionService = require("./TranscriptionService");
+const TwilioSocket = require("./modules/TwilioSocket");
+const TranscriptionService = require("./modules/TranscriptionService");
 const TwilioSocketConnection = TwilioSocket.TwilioSocketConnection;
-const TextToSpeech = require("./TextToSpeechService");
+const TextToSpeech = require("./modules/TextToSpeechService");
 const wavefile = require('wavefile');
-const ListenerSocket = require('./ListenerSocket')
+const ListenerSocket = require('./modules/ListenerSocket')
 const Listener = ListenerSocket.Listenersocket
-const GPTPlugin = require('./GPTPlugin')
+const GPTPlugin = require('./modules/GPTPlugin')
 const ChatGPT = GPTPlugin.GPTPlugin;
 const {encode, decode} = require('gpt-3-encoder')
 
