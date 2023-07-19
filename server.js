@@ -99,7 +99,7 @@ async function Respond(text) {
   var tokens = encode(text);
   BroadcastListeners('transcription', {
       role:'user',
-      tokens:tokens
+      tokens:tokens.map(token => decode(token))
     });
 
   var response = await gpt.GenerateResponse(text);
@@ -107,7 +107,7 @@ async function Respond(text) {
   var tokens = encode(response);
   BroadcastListeners('transcription', {
     role:'assistant',
-    tokens:tokens
+    tokens:tokens.map(token => decode(token))
   });
   SayAudio(response);
 }
