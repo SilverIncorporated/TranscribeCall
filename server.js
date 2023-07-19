@@ -11,10 +11,7 @@ const GPTPlugin = require('./GPTPlugin')
 const ChatGPT = GPTPlugin.GPTPlugin;
 const {encode, decode} = require('gpt-3-encoder')
 
-var webSocketServer = new (require('ws')).Server({port: (3000)});
-
-const req = require("express/lib/request");
-var fs = require("fs");
+var webSocketServer = new (require('ws')).Server({port: (process.env.PORT)});
 
 listenerSockets = {};
 gsClientInbound = null;
