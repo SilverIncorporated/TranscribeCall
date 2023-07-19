@@ -35,7 +35,7 @@ module.exports = {
             try {
                 var msg = JSON.parse(message);
         
-                //Because twilio is stupid and can't pass parameters in a url like every normal service, we pick it up from the first streamed message
+                //Because twilio is silly and can't pass parameters in a url like every normal service, we pick it up from the first streamed message
                 if(msg['event'] && msg.event === "start") {
                     this.name = "twilio";
                     log("Twilio start event received.");
