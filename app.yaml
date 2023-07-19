@@ -1,31 +1,13 @@
+# [START appengine_websockets_yaml]
 runtime: nodejs
 env: flex
+
+# Use only a single instance, so that this local-memory-only chat app will work
+# consistently with multiple users. To work across multiple instances, an
+# extra-instance messaging system or data store would be needed.
 manual_scaling:
   instances: 1
-network:
-  instance_tag: websocket
 
-apiVersion: networking.istio.io/v1alpha3
-kind: EnvoyFilter
-metadata:
-  name: allowconnect-cluser-local-gateway
-  namespace: gke-system
-spec:
-  workloadSelector:
-    labels:
-      app: cluster-local-gateway
-  configPatches:
-  - applyTo: NETWORK_FILTER
-    match:
-      listener:
-        portNumber: 80
-        filterChain:
-          filter:
-            name: "envoy.http_connection_manager"
-    patch:
-      operation: MERGE
-      value:
-        typed_config:
-          "@type": "type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager"
-          http2_protocol_options:
-            allow_connect: true
+network:
+  session_affinity: true
+# [END appengine_websockets_yaml]
