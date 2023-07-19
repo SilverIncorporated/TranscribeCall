@@ -42,7 +42,7 @@ webSocketServer.on('connection', (ws, req) => {
       newListener.on("start", (msg) => log("Listener Attached"));
       newListener.on("listFunctions", (msg) => log(msg))
       newListener.on("close", () => CloseListener(newListener.id));
-      newListener.on('echo', (msg) => BroadcastListeners(msg));
+      newListener.on('echo', (msg) => BroadcastListeners("echo","message"));
     }
   }
   catch(error) {
@@ -51,7 +51,7 @@ webSocketServer.on('connection', (ws, req) => {
 })
 function BroadcastListeners(event, content) {
   for ( let key in listenerSockets ) {
-    listenerSockets[key].writeMessage(msg.event, msg.content);
+    listenerSockets[key].writeMessage(event, content);
   }
 }
 function CloseListener(id){
