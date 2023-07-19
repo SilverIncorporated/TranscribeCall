@@ -103,7 +103,7 @@ async function Respond(text) {
     });
 
   var response = await gpt.GenerateResponse(text);
-
+  log(`Assistant: ${response}`);
   var tokens = encode(response);
   BroadcastListeners('transcription', {
     role:'assistant',
