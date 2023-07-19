@@ -12,4 +12,5 @@ async function Test()
     var choices = await gpt.GenerateResponse("Boston")
     log(choices)
 }
+
 Test()
