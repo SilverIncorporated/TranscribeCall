@@ -73,7 +73,7 @@ module.exports = {
             }
             const responseText = result.data.choices[0].message.content;
             this.currentMessages.push({role:'assistant', content:responseText});
-            return result.data.choices;
+            return responseText;
         }
     }
 }

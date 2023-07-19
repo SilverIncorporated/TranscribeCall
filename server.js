@@ -5,9 +5,10 @@ const TranscriptionService = require("./TranscriptionService");
 const TwilioSocketConnection = TwilioSocket.TwilioSocketConnection;
 const TextToSpeech = require("./TextToSpeechService");
 const wavefile = require('wavefile');
-const gpt = require('./GPTPlugin');
 const ListenerSocket = require('./ListenerSocket')
 const Listener = ListenerSocket.Listenersocket
+const GPTPlugin = require('./GPTPlugin')
+const ChatGPT = GPTPlugin.GPTPlugin;
 
 var webSocketServer = new (require('ws')).Server({port: (3000)});
 
@@ -17,6 +18,7 @@ var fs = require("fs");
 listenerSockets = {};
 gsClientInbound = null;
 twilioSocket = null;
+const gpt = new ChatGPT();
 
 log("Starting websocket server...");
 
@@ -100,7 +102,7 @@ async function Respond(msg) {
 
   log(`User: ${msg}`);
 
-  var response = await gpt(msg);
+  var response = await gpt.GenerateResponse(msg);
 
   log(`Agent: ${response}`)
 
