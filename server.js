@@ -40,7 +40,7 @@ webSocketServer.on('connection', (ws, req) => {
       var newListener = new Listener(ws, req, req.url);
       listenerSockets[newListener.id] = newListener;
       newListener.on("start", (msg) => log("Listener Attached"));
-      newListener.on("listFunctions", (msg) => log(msg))
+      newListener.on("registerFunction", (msg) => RegisterFunction(msg))
       newListener.on("close", () => CloseListener(newListener.id));
       newListener.on('echo', (msg) => BroadcastListeners("echo", msg));
     }
@@ -49,6 +49,9 @@ webSocketServer.on('connection', (ws, req) => {
     log("Failed to connect socket!\n" + error.message);
   }
 })
+function RegisterFunction(msg) {
+  gpt.RegisterFunction(msg.content, (func) => BroadcastListeners('callFunction', func));
+}
 function BroadcastListeners(event, content) {
   for ( let key in listenerSockets ) {
     listenerSockets[key].writeMessage(event, content);

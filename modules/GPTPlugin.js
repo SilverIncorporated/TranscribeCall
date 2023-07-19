@@ -22,23 +22,8 @@ module.exports = {
                 apiKey: process.env.OAI_APIKEY
             });
             this.openai = new openaiapi(configuration);
-            this.functions =[
-                {
-                    "name": "get_current_weather",
-                    "description": "Get the current weather in a given location",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "location": {
-                                "type": "string",
-                                "description": "The city and state, e.g. San Francisco, CA",
-                            },
-                            "unit": {"type": "string", "enum": ["Fahrenheit", "fahrenheit"]},
-                        },
-                        "required": ["location"],
-                    },
-                }
-            ]
+            this.functions =[]
+            this.callbacks = {};
         }
         async GenerateResponse(prompt) {
             const promptText = `${prompt}\n\nResponse:`;
@@ -74,6 +59,10 @@ module.exports = {
             const responseText = result.data.choices[0].message.content;
             this.currentMessages.push({role:'assistant', content:responseText});
             return responseText;
+        }
+        RegisterFunction(func, callback) {
+            this.functions.push(func);
+            this.callbacks[func.name] = callback;
         }
     }
 }
