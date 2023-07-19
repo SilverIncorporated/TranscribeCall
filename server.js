@@ -33,7 +33,7 @@ webSocketServer.on('connection', (ws, req) => {
       })
       twilioSocket.on("message", (msg) => TranscribeMessage(msg));
       twilioSocket.on('close', CloseTwilioSocket);
-      Respond("Introduce yourself")
+      Respond("Introduce yourself");
     }
     else if(req.url.startsWith('/listener')) {    
       log(`Listener connected at ${req.url}`)
@@ -42,7 +42,7 @@ webSocketServer.on('connection', (ws, req) => {
       newListener.on("start", (msg) => log("Listener Attached"));
       newListener.on("listFunctions", (msg) => log(msg))
       newListener.on("close", () => CloseListener(newListener.id));
-      newListener.on('echo', (msg) => BroadcastListeners("echo",msg));
+      newListener.on('echo', (msg) => BroadcastListeners("echo", msg));
     }
   }
   catch(error) {
