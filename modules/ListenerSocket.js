@@ -48,15 +48,13 @@ module.exports = {
                     this.emit('start', msg);
                 } 
                 else if (msg['event'] && msg.event === "listFunctions") {
-                    try {
-                        this.emit('listFunctions', msg);
-                    }
-                    catch (error) {
-                        log(`Listener ${this.name} failed to Emit: ${error}`)
-                    }
+                    this.emit('listFunctions', msg.content);
                 }
                 else if (msg.event && msg.event === "echo"){
                     this.emit('echo', msg);
+                }
+                else if (msg.event && msg.event === "registerFunction"){
+                    this.emit('registerFunction',msg.content)
                 }
             }
             catch (error) {

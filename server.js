@@ -10,6 +10,7 @@ const Listener = ListenerSocket.Listenersocket
 const GPTPlugin = require('./modules/GPTPlugin')
 const ChatGPT = GPTPlugin.GPTPlugin;
 const {encode, decode} = require('gpt-3-encoder')
+var defaultFunctions = require("./modules/Functions.json")
 
 var webSocketServer = new (require('ws')).Server({port: (process.env.PORT)});
 
@@ -17,6 +18,11 @@ listenerSockets = {};
 gsClientInbound = null;
 twilioSocket = null;
 const gpt = new ChatGPT();
+log(defaultFunctions)
+for (func in defaultFunctions.functions) {
+  log(defaultFunctions.functions[func])
+  RegisterFunction(defaultFunctions.functions[func]);
+}
 
 log("Starting websocket server...");
 
@@ -40,15 +46,18 @@ webSocketServer.on('connection', (ws, req) => {
       var newListener = new Listener(ws, req, req.url);
       listenerSockets[newListener.id] = newListener;
       newListener.on("start", (msg) => log("Listener Attached"));
-      newListener.on("listFunctions", (msg) => log(msg))
+      newListener.on("registerFunction", (msg) => RegisterFunction(msg))
       newListener.on("close", () => CloseListener(newListener.id));
-      newListener.on('echo', (msg) => BroadcastListeners("echo", msg));
+      newListener.on('echo', (msg) => Respond(msg.content));
     }
   }
   catch(error) {
     log("Failed to connect socket!\n" + error.message);
   }
 })
+function RegisterFunction(func) {
+  gpt.RegisterFunction(func, (func) => BroadcastListeners('callFunction', func));
+}
 function BroadcastListeners(event, content) {
   for ( let key in listenerSockets ) {
     listenerSockets[key].writeMessage(event, content);
@@ -66,8 +75,9 @@ function TranscribeMessage(message) {
   gsClientInbound.send(message.media.payload);
 }
 async function SayAudio(message){
-  var response = await GetResponseAudio(message);
+  
   if(twilioSocket) {
+    var response = await GetResponseAudio(message);
     var say = new wavefile.WaveFile(response);
     say.toBitDepth('8');
     say.toSampleRate(8000);
@@ -85,6 +95,9 @@ async function SayAudio(message){
 
     twilioSocket.socket.send(msgJson);
   }
+  else {
+    log("No audio socket connected. Skipping say.");
+  }
 }
 function CloseTwilioSocket() {
   log('Twilio lane closing...')
@@ -96,18 +109,18 @@ async function GetResponseAudio(text) {
 }
 async function Respond(text) {
   log(`User: ${text}`);
-  var tokens = encode(text);
+  // var tokens = encode(text);
   BroadcastListeners('transcription', {
       role:'user',
-      tokens:tokens
+      content:text
     });
 
   var response = await gpt.GenerateResponse(text);
   log(`Assistant: ${response}`);
-  var tokens = encode(response);
+  // var tokens = encode(response);
   BroadcastListeners('transcription', {
     role:'assistant',
-    tokens:tokens
+    content:response
   });
   SayAudio(response);
 }
