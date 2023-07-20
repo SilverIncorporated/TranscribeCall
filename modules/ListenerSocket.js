@@ -56,6 +56,12 @@ module.exports = {
                 else if (msg.event && msg.event === "registerFunction"){
                     this.emit('registerFunction',msg.content)
                 }
+                else if (msg.event && msg.event === "clearFunctions"){
+                    this.emit('clearFunctions')
+                }
+                else if (msg.event && msg.event === "listFunctions") {
+                    this.emit('listFunctions')
+                }
             }
             catch (error) {
                 log(`Listener ${this.name} message receive failed: ${message}\nError: ${error}`);

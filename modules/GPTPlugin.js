@@ -8,6 +8,16 @@ module.exports = {
     GPTPlugin: class GPTPlugin {
         constructor() {
             this.modelId = "gpt-3.5-turbo";
+            var configuration = new Configuration( {
+                apiKey: process.env.OAI_APIKEY
+            });
+            this.openai = new openaiapi(configuration);
+            this.Init()
+        }
+
+        Init() {
+            this.functions = []
+            this.callbacks = {};
             this.currentMessages = [
                 {
                     role:'system',
@@ -18,13 +28,8 @@ module.exports = {
                     do not use example values for arguments in functions`
                 }
             ];
-            var configuration = new Configuration( {
-                apiKey: process.env.OAI_APIKEY
-            });
-            this.openai = new openaiapi(configuration);
-            this.functions = []
-            this.callbacks = {};
         }
+        
         async GenerateResponse(prompt) {
             const promptText = `${prompt}\n\nResponse:`;
             this.currentMessages.push({role:'user', content:prompt});
@@ -75,6 +80,9 @@ module.exports = {
             this.functions.push(func);
             this.callbacks[func.name] = callback;
             log(`Function registered:\n${JSON.stringify(func)}`)
+        }
+        ClearFunctions() {
+            this.functions = []
         }
     }
 }
