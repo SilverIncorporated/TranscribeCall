@@ -19,10 +19,10 @@ gsClientInbound = null;
 twilioSocket = null;
 const gpt = new ChatGPT();
 // log(defaultFunctions)
-// for (func in defaultFunctions.functions) {
-//   log(defaultFunctions.functions[func])
-//   RegisterFunction(defaultFunctions.functions[func]);
-// }
+for (func in defaultFunctions.functions) {
+  log(defaultFunctions.functions[func])
+  RegisterFunction(defaultFunctions.functions[func]);
+}
 
 log("Starting websocket server...");
 
@@ -51,6 +51,7 @@ webSocketServer.on('connection', (ws, req) => {
       newListener.on('echo', (msg) => Respond(msg.content));
       newListener.on('clearFunctions', () => ClearFunctions())
       newListener.on('listFunctions', () => ListFunctions())
+      newListener.on('functionReturn', (content) => RespondFunction(content))
     }
   }
   catch(error) {
@@ -134,3 +135,20 @@ async function Respond(text) {
   });
   SayAudio(response);
 }
+
+async function RespondFunction(func){
+  log(`Function response.`);
+  BroadcastListeners('funcResult', {
+    role:'function',
+    content: func
+  })
+  var response = await gpt.FunctionCompletion(func.name, func.result);
+  log(`Assistant: ${response}`);
+  // var tokens = encode(response);
+  BroadcastListeners('transcription', {
+    role:'assistant',
+    content: response
+  });
+  SayAudio(response);
+}
+  

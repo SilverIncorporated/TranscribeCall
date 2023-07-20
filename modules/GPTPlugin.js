@@ -31,7 +31,6 @@ module.exports = {
         }
         
         async GenerateResponse(prompt) {
-            const promptText = `${prompt}\n\nResponse:`;
             this.currentMessages.push({role:'user', content:prompt});
             var responseText=""
             if (this.functions.length > 0) {
@@ -43,26 +42,8 @@ module.exports = {
                 });
                 if(result.data.choices[0].message.function_call) {
                     var functionCall = result.data.choices[0].message.function_call;
-                    log(`Agent Action: Calling function ${functionCall.name}`)
+                    log(`Action: Calling function ${functionCall.name}`)
                     this.callbacks[functionCall.name](functionCall);
-                    // this.currentMessages.push(
-                    //     {
-                    //         'role': 'function',
-                    //         'name': 'get_current_weather',
-                    //         'content': JSON.stringify({
-                    //             'location': 'Boston',
-                    //             'temperature': '72',
-                    //             'unit': 'Fahrenhrit',
-                    //             'forecast': ['sunny','windy']
-                    //         })
-                    //     }
-                    // )
-                    // result = await this.openai.createChatCompletion({
-                    //     model: this.modelId,
-                    //     messages: this.currentMessages,
-                    //     functions: this.functions,
-                    //     function_call:"auto"
-                    // })
                     responseText="I am calling an external service to complete this request.";
                 }
                 else {responseText = result.data.choices[0].message.content;}
@@ -83,6 +64,35 @@ module.exports = {
         }
         ClearFunctions() {
             this.functions = []
+        }
+        async FunctionCompletion(name, result) {
+            this.currentMessages.push(
+                {
+                    role:"function",
+                    name:name,
+                    content:JSON.stringify(result)
+                }
+            )
+                // {
+                //     'role': 'function',
+                //     'name': 'get_current_weather',
+                //     'content': JSON.stringify({
+                //         'location': 'Boston',
+                //         'temperature': '72',
+                //         'unit': 'Fahrenhrit',
+                //         'forecast': ['sunny','windy']
+                //     })
+                // }
+            var response = await this.openai.createChatCompletion({
+                model: this.modelId,
+                messages: this.currentMessages,
+                functions: this.functions,
+                function_call:"auto"
+            });
+            var responseText = response.data.choices[0].message.content;
+            this.currentMessages.push({role:'assistant', content:responseText});
+
+            return responseText;
         }
     }
 }

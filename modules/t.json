@@ -1,0 +1,1 @@
+{"event":"functionReturn","content":{"name": "get_current_weather","result":{"location":"Boston","temperature":"72","unit":"Fahrenhrit","forecast":["sunny","windy"]}}}
