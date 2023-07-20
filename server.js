@@ -50,7 +50,7 @@ webSocketServer.on('connection', (ws, req) => {
       newListener.on("close", () => CloseListener(newListener.id));
       newListener.on('echo', (msg) => Respond(msg.content));
       newListener.on('clearFunctions', () => ClearFunctions())
-      newListener.on('listFunctions', () => log(gpt.functions))
+      newListener.on('listFunctions', () => ListFunctions())
     }
   }
   catch(error) {
@@ -63,6 +63,10 @@ function RegisterFunction(func) {
 function ClearFunctions() {
   log('Clearing all functions...');
   gpt.ClearFunctions();
+}
+function ListFunctions() {
+  log(`List functions...`)
+  BroadcastListeners("listFunctions", gpt.functions)
 }
 function BroadcastListeners(event, content) {
   for ( let key in listenerSockets ) {
