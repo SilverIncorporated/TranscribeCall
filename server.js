@@ -18,11 +18,11 @@ listenerSockets = {};
 gsClientInbound = null;
 twilioSocket = null;
 const gpt = new ChatGPT();
-log(defaultFunctions)
-for (func in defaultFunctions.functions) {
-  log(defaultFunctions.functions[func])
-  RegisterFunction(defaultFunctions.functions[func]);
-}
+// log(defaultFunctions)
+// for (func in defaultFunctions.functions) {
+//   log(defaultFunctions.functions[func])
+//   RegisterFunction(defaultFunctions.functions[func]);
+// }
 
 log("Starting websocket server...");
 
@@ -49,6 +49,8 @@ webSocketServer.on('connection', (ws, req) => {
       newListener.on("registerFunction", (msg) => RegisterFunction(msg))
       newListener.on("close", () => CloseListener(newListener.id));
       newListener.on('echo', (msg) => Respond(msg.content));
+      newListener.on('clearFunctions', () => ClearFunctions())
+      newListener.on('listFunctions', () => log(gpt.functions))
     }
   }
   catch(error) {
@@ -57,6 +59,10 @@ webSocketServer.on('connection', (ws, req) => {
 })
 function RegisterFunction(func) {
   gpt.RegisterFunction(func, (func) => BroadcastListeners('callFunction', func));
+}
+function ClearFunctions() {
+  log('Clearing all functions...');
+  gpt.ClearFunctions();
 }
 function BroadcastListeners(event, content) {
   for ( let key in listenerSockets ) {
