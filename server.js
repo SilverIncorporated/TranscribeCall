@@ -18,6 +18,11 @@ listenerSockets = {};
 gsClientInbound = null;
 twilioSocket = null;
 const gpt = new ChatGPT();
+log(defaultFunctions)
+for (func in defaultFunctions.functions) {
+  log(defaultFunctions.functions[func])
+  RegisterFunction(defaultFunctions.functions[func]);
+}
 
 log("Starting websocket server...");
 
@@ -41,9 +46,9 @@ webSocketServer.on('connection', (ws, req) => {
       var newListener = new Listener(ws, req, req.url);
       listenerSockets[newListener.id] = newListener;
       newListener.on("start", (msg) => log("Listener Attached"));
-      newListener.on("registerFunction", (msg) => RegisterFunction(msg.content))
+      newListener.on("registerFunction", (msg) => RegisterFunction(msg))
       newListener.on("close", () => CloseListener(newListener.id));
-      newListener.on('echo', (msg) => BroadcastListeners("echo", msg));
+      newListener.on('echo', (msg) => Respond(msg.content));
     }
   }
   catch(error) {
@@ -70,8 +75,9 @@ function TranscribeMessage(message) {
   gsClientInbound.send(message.media.payload);
 }
 async function SayAudio(message){
-  var response = await GetResponseAudio(message);
+  
   if(twilioSocket) {
+    var response = await GetResponseAudio(message);
     var say = new wavefile.WaveFile(response);
     say.toBitDepth('8');
     say.toSampleRate(8000);
@@ -89,6 +95,9 @@ async function SayAudio(message){
 
     twilioSocket.socket.send(msgJson);
   }
+  else {
+    log("No audio socket connected. Skipping say.");
+  }
 }
 function CloseTwilioSocket() {
   log('Twilio lane closing...')
@@ -100,24 +109,18 @@ async function GetResponseAudio(text) {
 }
 async function Respond(text) {
   log(`User: ${text}`);
-  var tokens = encode(text);
+  // var tokens = encode(text);
   BroadcastListeners('transcription', {
       role:'user',
-      tokens:tokens.map(token => decode(token))
+      content:text
     });
 
   var response = await gpt.GenerateResponse(text);
   log(`Assistant: ${response}`);
-  var tokens = encode(response);
+  // var tokens = encode(response);
   BroadcastListeners('transcription', {
     role:'assistant',
-    tokens:tokens.map(token => decode(token))
+    content:response
   });
   SayAudio(response);
-}
-
-for (func in defaultFunctions) {
-
-  RegisterFunction(func);
-
 }
