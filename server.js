@@ -19,10 +19,10 @@ gsClientInbound = null;
 twilioSocket = null;
 const gpt = new ChatGPT();
 // log(defaultFunctions)
-// for (func in defaultFunctions.functions) {
-//   log(defaultFunctions.functions[func])
-//   RegisterFunction(defaultFunctions.functions[func]);
-// }
+for (func in defaultFunctions.functions) {
+  log(defaultFunctions.functions[func])
+  RegisterFunction(defaultFunctions.functions[func]);
+}
 
 log("Starting websocket server...");
 
@@ -51,6 +51,8 @@ webSocketServer.on('connection', (ws, req) => {
       newListener.on('echo', (msg) => Respond(msg.content));
       newListener.on('clearFunctions', () => ClearFunctions())
       newListener.on('listFunctions', () => ListFunctions())
+      newListener.on('functionReturn', (content) => RespondFunction(content))
+      newListener.on('init', () => Init())
     }
   }
   catch(error) {
@@ -58,11 +60,16 @@ webSocketServer.on('connection', (ws, req) => {
   }
 })
 function RegisterFunction(func) {
-  gpt.RegisterFunction(func, (func) => BroadcastListeners('callFunction', func));
+    gpt.RegisterFunction(func, (func) => BroadcastListeners('callFunction', func));
+  
 }
 function ClearFunctions() {
   log('Clearing all functions...');
   gpt.ClearFunctions();
+}
+function Init() {
+  log("Restarting chat...");
+  gpt.Init();
 }
 function ListFunctions() {
   log(`List functions...`)
@@ -118,19 +125,40 @@ async function GetResponseAudio(text) {
   return await TextToSpeech(text, 'en-US', 'NEUTRAL');
 }
 async function Respond(text) {
-  log(`User: ${text}`);
-  // var tokens = encode(text);
-  BroadcastListeners('transcription', {
-      role:'user',
-      content:text
-    });
+  if(text) {
+    log(`User: ${text}`);
+    // var tokens = encode(text);
+    BroadcastListeners('transcription', {
+        role:'user',
+        content:text
+      });
 
-  var response = await gpt.GenerateResponse(text);
+    var response = await gpt.GenerateResponse(text);
+    log(`Assistant: ${response}`);
+    // var tokens = encode(response);
+    BroadcastListeners('transcription', {
+      role:'assistant',
+      content:response
+    });
+    SayAudio(response);
+  }
+  else {log("Message was null.")}
+  
+}
+
+async function RespondFunction(func){
+  log(`Function response.`);
+  BroadcastListeners('funcResult', {
+    role:'function',
+    content: func
+  })
+  var response = await gpt.FunctionCompletion(func.name, func.result);
   log(`Assistant: ${response}`);
   // var tokens = encode(response);
   BroadcastListeners('transcription', {
     role:'assistant',
-    content:response
+    content: response
   });
   SayAudio(response);
 }
+  
