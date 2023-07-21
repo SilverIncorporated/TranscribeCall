@@ -93,8 +93,10 @@ module.exports = {
                 function_call:"auto"
             });
             var responseText = response.data.choices[0].message.content;
-            this.currentMessages.push({role:'assistant', content:responseText});
-
+            if(responseText != null) {
+                this.currentMessages.push({role:'assistant', content:responseText});
+            }
+            
             return responseText;
         }
     }
