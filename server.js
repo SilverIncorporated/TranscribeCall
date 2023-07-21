@@ -60,7 +60,8 @@ webSocketServer.on('connection', (ws, req) => {
   }
 })
 function RegisterFunction(func) {
-  gpt.RegisterFunction(func, (func) => BroadcastListeners('callFunction', func));
+    gpt.RegisterFunction(func, (func) => BroadcastListeners('callFunction', func));
+  
 }
 function ClearFunctions() {
   log('Clearing all functions...');
