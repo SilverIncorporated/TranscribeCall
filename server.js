@@ -148,6 +148,7 @@ async function Respond(text) {
 
 async function RespondFunction(func){
   log(`Function response.`);
+  log(func)
   BroadcastListeners('funcResult', {
     role:'function',
     content: func
