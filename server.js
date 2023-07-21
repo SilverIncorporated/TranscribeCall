@@ -53,6 +53,7 @@ webSocketServer.on('connection', (ws, req) => {
       newListener.on('listFunctions', () => ListFunctions())
       newListener.on('functionReturn', (content) => RespondFunction(content))
       newListener.on('init', () => Init())
+      newListener.on('listChat', () => ListChat())
     }
   }
   catch(error) {
@@ -74,6 +75,10 @@ function Init() {
 function ListFunctions() {
   log(`List functions...`)
   BroadcastListeners("listFunctions", gpt.functions)
+}
+function ListChat() {
+  log(`List functions...`)
+  BroadcastListeners("listChat", gpt.messages)
 }
 function BroadcastListeners(event, content) {
   for ( let key in listenerSockets ) {

@@ -68,6 +68,9 @@ module.exports = {
                 else if (msg.event && msg.event === "init"){
                     this.emit('init');
                 }
+                else if (msg.event && msg.event === "listChat") {
+                    this.emit('listChat')
+                }
             }
             catch (error) {
                 log(`Listener ${this.name} message receive failed: ${message}\nError: ${error}`);
