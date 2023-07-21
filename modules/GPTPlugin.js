@@ -21,14 +21,7 @@ module.exports = {
             this.currentMessages = [
                 {
                     role:'system',
-                    content:`You are a healthcare assistant named Doc Robot\n
-                    give one sentence responses\n
-                    do not assume the input for functions you call\n
-                    always ask if you are not given an input for a function\n
-                    do not use example values for arguments in functions\n
-                    always give required input arguments for functions\n
-                    ask for function arguments one at a time\n
-                    only use the functions provided to you`
+                    content:`You are a healthcare assistant named Doc Robot\ngive one sentence responses\ndo not assume the input for functions you call\nalways ask if you are not given an input for a function\ndo not use example values for arguments in functions\nalways give required input arguments for functions\nask for function arguments one at a time\nonly use the functions provided to you`
                 }
             ];
         }
@@ -76,21 +69,9 @@ module.exports = {
                     content:JSON.stringify(result)
                 }
             )
-                // {
-                //     'role': 'function',
-                //     'name': 'get_current_weather',
-                //     'content': JSON.stringify({
-                //         'location': 'Boston',
-                //         'temperature': '72',
-                //         'unit': 'Fahrenhrit',
-                //         'forecast': ['sunny','windy']
-                //     })
-                // }
             var response = await this.openai.createChatCompletion({
                 model: this.modelId,
-                messages: this.currentMessages,
-                functions: this.functions,
-                function_call:"auto"
+                messages: this.currentMessages
             });
             var responseText = response.data.choices[0].message.content;
             if(responseText != null) {

@@ -78,7 +78,7 @@ function ListFunctions() {
 }
 function ListChat() {
   log(`List functions...`)
-  BroadcastListeners("listChat", gpt.messages)
+  BroadcastListeners("listChat", gpt.currentMessages)
 }
 function BroadcastListeners(event, content) {
   for ( let key in listenerSockets ) {
@@ -131,6 +131,7 @@ async function GetResponseAudio(text) {
 }
 async function Respond(text) {
   if(text) {
+    text = text.replace(/\\/g, "");
     log(`User: ${text}`);
     // var tokens = encode(text);
     BroadcastListeners('transcription', {
@@ -153,6 +154,7 @@ async function Respond(text) {
 
 async function RespondFunction(func){
   log(`Function response.`);
+  func.result.replace(/\\/g, "");
   log(func)
   BroadcastListeners('funcResult', {
     role:'function',
