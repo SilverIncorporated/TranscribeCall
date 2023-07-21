@@ -65,6 +65,9 @@ module.exports = {
                 else if (msg.event && msg.event === "functionReturn") {
                     this.emit('functionReturn', msg.content)
                 }
+                else if (msg.event && msg.event === "init"){
+                    this.emit('init');
+                }
             }
             catch (error) {
                 log(`Listener ${this.name} message receive failed: ${message}\nError: ${error}`);

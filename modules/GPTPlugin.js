@@ -25,7 +25,10 @@ module.exports = {
                     give one sentence responses\n
                     do not assume the input for functions you call\n
                     always ask if you are not given an input for a function\n
-                    do not use example values for arguments in functions`
+                    do not use example values for arguments in functions\n
+                    always give required input arguments for functions\n
+                    ask for function arguments one at a time\n
+                    only use the functions provided to you`
                 }
             ];
         }
@@ -44,7 +47,7 @@ module.exports = {
                     var functionCall = result.data.choices[0].message.function_call;
                     log(`Action: Calling function ${functionCall.name}`)
                     this.callbacks[functionCall.name](functionCall);
-                    responseText="I am calling an external service to complete this request.";
+                    responseText="I am calling an external service.";
                 }
                 else {responseText = result.data.choices[0].message.content;}
             } else {
